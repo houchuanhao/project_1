@@ -35,19 +35,20 @@ module tb_topModule();
 		
 	wire  [lenOfOutput-1:0] out_data0, out_data1;
 	
-	
-	
-	
+	reg signed [7:0] r_kernels[0:16384]; 
+	reg [7:0] r_featureMaps[0:131072];
+	integer file_rd;
 	// internal variables
 	reg [lenOfInput-1:0] kernel[numOfPerKnl-1:0];   //store the value of a kernel
 	reg [lenOfInput-1:0] fMap[4095:0];	//per Map
 	integer cycleCounter; //the number of cycles during CONV
 	integer rowPosOfFMap;	//the row position of FMap
 	
-	
 	// initial all data and testbench variables
 	integer i_knl,i_data,j_data;
 	initial begin	
+		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt",r_kernels);
+		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt",r_featureMaps);
 		//inital the value of kernel: 0-15
 		for(i_knl=0;i_knl<numOfPerKnl;i_knl=i_knl+1)
 			kernel[i_knl]=i_knl;
