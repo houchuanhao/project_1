@@ -24,50 +24,56 @@
 // the storage of kernel is via row priority, and we get kernel via row priority!
 // the storage of data is via row priority, but we get data via column priority!!
 module tb_topModule();
-    parameter lenOfInput=8;    //the number of input-data bits 
+	// Configuration of the CONV-Project
+	integer numOfKernels=8;
+	integer numOfChannels=8;
+	
+	parameter lenOfInput=8;    //the number of input-data bits 
     parameter lenOfOutput=25;  //the number of output-data bits
 	parameter numOfPerKnl=16;  //the number of kernel value
+	parameter numOfPerFMap=4096;  //the number of kernel value
 	
 	// module variables
+	//input
 	reg clk=0;
 	reg [lenOfInput-1:0] in_data0, in_data1,  in_data2,  in_data3,  in_data4,  in_data5,  in_data6,  in_data7;
 	reg in_start_conv=0;	//start signal of the top module
-		
-	wire  [lenOfOutput-1:0] out_data0, out_data1;
+	reg [2:0] in_cfg_ci;  //the number of channels,  		0 means 8, 1 means 16, 3 means 24, 3 means 32
+    reg [2:0] in_cfg_co;      //the number of kernels,         0 means 8, 1 means 16, 3 means 24, 3 means 32
+	//output
+	wire [lenOfOutput-1:0] out_data0, out_data1;
+	wire out_end_conv;
 	
-	reg signed [7:0] r_kernels[0:16384]; 
-	reg signed [7:0] r_featureMaps[0:131072];
-	integer file_rd;
+	
 	// internal variables
-	reg [lenOfInput-1:0] kernel[numOfPerKnl-1:0];   //store the value of a kernel
-	reg [lenOfInput-1:0] fMap[4095:0];	//per Map
-	integer cycleCounter; //the number of cycles during CONV
-	integer rowPosOfFMap;	//the row position of FMap
+	reg [lenOfInput-1:0] kernel[0:numOfPerKnl*32*32-1];   //store the value of a kernel, 32 kernels with 32 channels
+	reg [lenOfInput-1:0] fMap[0:numOfPerFMap*32-1];	//per fMap, 32 fMap with 32 channels  
 	
 	// initial all data and testbench variables
-	integer i_knl,i_data,j_data;
-	reg signed [24:0] mu_temp;
-	reg  [15:0] test_reg;
+	integer temp; //temporary variable
+	integer i_knl,j_chnl,k_value; //variables for kernel initialization
+	
 	initial begin	
-		//$readmemb("./weight_bin_co32xci32xk4xk4.txt",r_kernels);
-	   // $readmemb("./ifm_bin_c32xh64xw64.txt",r_featureMaps);
-		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt",r_kernels);
-		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt",r_featureMaps);
-		mu_temp=r_kernels[0]*r_featureMaps[0];
-		//inital the value of kernel: 0-15
-		for(i_knl=0;i_knl<numOfPerKnl;i_knl=i_knl+1)
-			kernel[i_knl]=i_knl;
+		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt",kernel);
+		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt",fMap);
 		
-		//initial the value of data
-		//the 0st row is 0, 1st is 1, 2nd row is 2...
-		for(i_data=0;i_data<64;i_data=i_data+1)
-			for(j_data=0;j_data<64;j_data=j_data+1)
-				fMap[i_data*64+j_data]=i_data;
-		
-		//inital cycleCounter
-		cycleCounter=0;	// [0,1] is read kernel; [2,3] is read the first 4*4 data; [4,33] is read flowing data in the same row
-		rowPosOfFMap=0;	//we send the data from the 1st row
-		
+		//inital the control signal
+		case(numOfChannels)
+			8: in_cfg_ci=0;
+			16: in_cfg_ci=1;
+			24: in_cfg_ci=2;
+			32: in_cfg_ci=3;
+			default: in_cfg_ci=3;
+		endcase
+		case(numOfKernels)
+			8: in_cfg_co=0;
+			16: in_cfg_co=1;
+			24: in_cfg_co=2;
+			32: in_cfg_co=3;
+			default: in_cfg_co=3;
+		endcase
+
+		//All inital works Done! 		
 		in_start_conv=1;	// inital work is done and the top module can start work!
 	end
 	
@@ -78,40 +84,68 @@ module tb_topModule();
 	
 	// begin to send data and count the cycle
 	integer i,j;
+	integer kernelCounter=0; 	// to count the id of this kernel
+	integer channelCounter=0; 	// to count the id of this channel
+	integer rowCounter=0;		// to count the id of the beginning row of data in this CONV, the row position of FMap
+	// to count the id of this cycle, the number of cycles during CONV
+	integer cycleCounter=0;	// [0,1] is read kernel; [2,3] is read the first 4*4 data; [4,33] is read flowing data in the same row
+		
 	always @(posedge clk) begin
 		if(in_start_conv)begin	//wait until initial work is done!
+			
 			if(cycleCounter<2) begin	//read kernel
-				in_data0=kernel[cycleCounter*8+0];
-				in_data1=kernel[cycleCounter*8+1];
-				in_data2=kernel[cycleCounter*8+2];
-				in_data3=kernel[cycleCounter*8+3];
-				in_data4=kernel[cycleCounter*8+4];
-				in_data5=kernel[cycleCounter*8+5];
-				in_data6=kernel[cycleCounter*8+6];
-				in_data7=kernel[cycleCounter*8+7];
+				temp=kernelCounter*numOfChannels*numOfPerKnl+channelCounter*numOfPerKnl;
+				
+				in_data0=kernel[temp+cycleCounter*8+0];
+				in_data1=kernel[temp+cycleCounter*8+1];
+				in_data2=kernel[temp+cycleCounter*8+2];
+				in_data3=kernel[temp+cycleCounter*8+3];
+				in_data4=kernel[temp+cycleCounter*8+4];
+				in_data5=kernel[temp+cycleCounter*8+5];
+				in_data6=kernel[temp+cycleCounter*8+6];
+				in_data7=kernel[temp+cycleCounter*8+7];
 			end
 			else if(cycleCounter>=2) begin  	//read 4*2 data columns with column priority for each cycle!
+				temp=kernelCounter*numOfChannels*numOfPerFMap+channelCounter*numOfPerFMap;
 				j=(cycleCounter-2)*2;
-				in_data0=fMap[rowPosOfFMap*64+j];
-				in_data1=fMap[(rowPosOfFMap+1)*64+j];
-				in_data2=fMap[(rowPosOfFMap+2)*64+j];
-				in_data3=fMap[(rowPosOfFMap+3)*64+j];
 				
-				in_data4=fMap[rowPosOfFMap*64+j+1];
-				in_data5=fMap[(rowPosOfFMap+1)*64+j+1];
-				in_data6=fMap[(rowPosOfFMap+2)*64+j+1];
-				in_data7=fMap[(rowPosOfFMap+3)*64+j+1];
+				in_data0=fMap[temp+rowCounter*64+j];
+				in_data1=fMap[temp+(rowCounter+1)*64+j];
+				in_data2=fMap[temp+(rowCounter+2)*64+j];
+				in_data3=fMap[temp+(rowCounter+3)*64+j];
+				
+				in_data4=fMap[temp+rowCounter*64+j+1];
+				in_data5=fMap[temp+(rowCounter+1)*64+j+1];
+				in_data6=fMap[temp+(rowCounter+2)*64+j+1];
+				in_data7=fMap[temp+(rowCounter+3)*64+j+1];
 			end 
 			
 			cycleCounter=cycleCounter+1;
 			if(cycleCounter==34) begin
-				cycleCounter=0;	//next row data in the fMap
-				rowPosOfFMap=rowPosOfFMap+1; //next row
+				cycleCounter=2;	//next row data in the fMap
+				rowCounter=rowCounter+1; //next row
 			end
+			if(rowCounter==61) begin	//One channel of fMap is over! Next channel of kernel and fMap...
+				cycleCounter=0;	//this is new kernel, we should re-send the kernel data.
+				rowCounter=0;
+				channelCounter=channelCounter+1;
+			end
+			if(channelCounter==numOfChannels) begin	//One fMap is over! Next kernel and fMap...
+				channelCounter=0;
+				kernelCounter=kernelCounter+1;
+			end
+			/* if(kernelCounter==numOfKernels) begin 	// All works finish.
+				$finish;
+			end */
+			if(out_end_conv==1) begin
+				$finish;
+			end 
 		end
 	end
-	//wire [lenOfInput-1:0] in_data0_wire = in_data0;
+
 	topModule top( in_start_conv, clk,
+		in_cfg_ci, in_cfg_co,
 		in_data0, in_data1, in_data2, in_data3, in_data4, in_data5, in_data6, in_data7,  
-		out_data0, out_data1 );
+		out_data0, out_data1,
+		out_end_conv		);
 endmodule
