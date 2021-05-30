@@ -36,6 +36,8 @@ input[1:0] cfg_co //kernel¸öÊıÄ¬ÈÏ32
 reg [16383:0] feature_row[0:63];
 reg [511:0] kernel_row[0:3];
 reg [24:0] result[0:244];
+reg [7:0] kernel[0:16*32*32-1];
+reg [7:0] fMap[0:64*64*32-1];
 genvar i,j,k;
 integer m;
 generate 
