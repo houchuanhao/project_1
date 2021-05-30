@@ -23,7 +23,7 @@ module PE(
 input clk,
 input[16383:0] featureMap,  //8*64 
 input [1023:0] kernelMap,
-input[8:0] nc, //kernel 的个数  
+input[8:0] nc, //通道的个数  
 output[1525:0] ofm 
     );
     parameter fsize=5;
