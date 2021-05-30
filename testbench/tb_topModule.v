@@ -36,7 +36,7 @@ module tb_topModule();
 	wire  [lenOfOutput-1:0] out_data0, out_data1;
 	
 	reg signed [7:0] r_kernels[0:16384]; 
-	reg [7:0] r_featureMaps[0:131072];
+	reg signed [7:0] r_featureMaps[0:131072];
 	integer file_rd;
 	// internal variables
 	reg [lenOfInput-1:0] kernel[numOfPerKnl-1:0];   //store the value of a kernel
@@ -46,9 +46,14 @@ module tb_topModule();
 	
 	// initial all data and testbench variables
 	integer i_knl,i_data,j_data;
+	reg signed [24:0] mu_temp;
+	reg  [15:0] test_reg;
 	initial begin	
+		//$readmemb("./weight_bin_co32xci32xk4xk4.txt",r_kernels);
+	   // $readmemb("./ifm_bin_c32xh64xw64.txt",r_featureMaps);
 		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt",r_kernels);
 		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt",r_featureMaps);
+		mu_temp=r_kernels[0]*r_featureMaps[0];
 		//inital the value of kernel: 0-15
 		for(i_knl=0;i_knl<numOfPerKnl;i_knl=i_knl+1)
 			kernel[i_knl]=i_knl;
