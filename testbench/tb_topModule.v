@@ -52,15 +52,29 @@ module tb_topModule();
 	// initial all data and testbench variables
 	integer temp; //temporary variable
 	integer i_knl,j_chnl,k_value; //variables for kernel initialization
+	wire [16383:0] w_feature;
+	wire [1023:0] w_kernelMap;
+	wire [16:0] peout;
+	reg [8:0] kernelNumber=2;
+	initial begin	
+		forever #0.05 clk=~clk;
+	end
+	genvar i;
+	generate 
+		for (i=0;i<2048;i=i+1)  begin: gfmap  //一行
+			assign  w_feature[i*8+7: i*8]=fMap[i];
+		end
+		for (i=0;i<128;i=i+1)  begin: gkernel  //一行
+			assign  w_kernelMap[i*8+7: i*8]=kernel[i];
+		end
+	endgenerate
+	PE   pe1(clk,w_feature,w_kernelMap,kernelNumber,peout);
 	initial begin	
 		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt",kernel);
 		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt",fMap);
 	end
-	wire [511:0] featureMap;
-	genvar i;
-	generate 
-		for (i=0;i<64;i=i+1)  begin: adder_gen
-			assign  featureMap[i*8+7: i*8]=kernel[i];
-		end
-	endgenerate
+
+
+	
+	
 endmodule
