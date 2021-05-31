@@ -41,7 +41,7 @@ module tb_topModule();
 	reg [2:0] in_cfg_ci;  //the number of channels,  		0 means 8, 1 means 16, 3 means 24, 3 means 32
     reg [2:0] in_cfg_co;      //the number of kernels,         0 means 8, 1 means 16, 3 means 24, 3 means 32
 	//output
-	wire [lenOfOutput-1:0] out_data0, out_data1;
+	wire signed [lenOfOutput-1:0] out_data0, out_data1;
 	wire out_end_conv;
 	wire out_writeCtl;
 	
@@ -55,6 +55,7 @@ module tb_topModule();
 	integer i_knl,j_chnl,k_value; //variables for kernel initialization
 	
 	initial begin	
+		/*
 		//inital the value of kernel: one channel of one kernel has the same value, all kernels have the same channels
 		i_knl=0; //i_knl is the id of kernel
 		while(i_knl<numOfKernels) begin
@@ -80,7 +81,7 @@ module tb_topModule();
 			end
 			j_chnl=j_chnl+1;
 		end
-		
+		*/
 		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
 		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
 		//inital the control signal

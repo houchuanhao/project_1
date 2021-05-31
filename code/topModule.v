@@ -41,11 +41,11 @@ module topModule(
 	// ======== 2. The part for declaring input or output variables of this module. And getting control information from testbench.
     // input data
 	input clk, in_start_conv;    //the start signal of CONV
-    input [lenOfInput-1:0] in_data0,  in_data1,  in_data2,  in_data3,  in_data4,  in_data5,  in_data6,  in_data7;
+    input signed [lenOfInput-1:0] in_data0,  in_data1,  in_data2,  in_data3,  in_data4,  in_data5,  in_data6,  in_data7;
 	input [2:0] in_cfg_ci;  //the number of channels,  		0 means 8, 1 means 16, 3 means 24, 3 means 32
 	input [2:0] in_cfg_co;      //the number of kernels,         0 means 8, 1 means 16, 3 means 24, 3 means 32
 	//output data
-    output [lenOfOutput-1:0] out_data0, out_data1;
+    output signed [lenOfOutput-1:0] out_data0, out_data1;
     output out_writeCtl; 	// the signal we are going to output data, 1 is yes.
 	output out_end_conv;    //the finish signal of CONV, 1 means finish
 	
@@ -101,7 +101,7 @@ module topModule(
 	// the data should be shifting 2 bits.
 	reg signed [lenOfInput-1:0] tmpData0,tmpData1,tmpData2,tmpData3;
 	//wire for recieving the data from CONVs
-	wire [lenOfOutput-1:0] convOut0,convOut1; //the output of conv0 and conv1.
+	wire signed [lenOfOutput-1:0] convOut0,convOut1; //the output of conv0 and conv1.
 	
 	// set two CONV modules. One for the first CONV, and two for consecutive CONVs
 	convMod conv0( tmpData0, data00, data01, data02, tmpData1, data10, data11, data12, tmpData2, data20, data21, data22, tmpData3, data30, data31, data32, kernel00, kernel01, kernel02, kernel03, kernel10, kernel11, kernel12, kernel13, kernel20, kernel21, kernel22, kernel23, kernel30, kernel31, kernel32, kernel33, 	convOut0 );
@@ -133,6 +133,7 @@ module topModule(
 	integer cycleCounter=0; //the number of cycles during CONV
     // begin to recieve data and count the cycle
 	integer temp; //temporary variable
+	integer tag;
     always @(posedge clk) begin
 		if(in_start_conv) begin	//wait until initial work is done!
 			if(cycleCounter==0) begin			//read kernel: 1st-2nd row
@@ -183,7 +184,8 @@ module topModule(
 				// the position is the first positon of this kernel
 				temp=0;
 				if(~idOfCalMem) begin //idOfCalMem==0, we are going to use convResults0
-					convResults0[temp] = convResults0[temp]+convOut1;
+					tag=convOut1;
+					convResults0[temp] = convResults0[temp]+tag;
 				end
 				else begin	//idOfCalMem==1, we are going to use convResults1
 					convResults1[temp] = convResults1[temp]+convOut1;
@@ -219,8 +221,10 @@ module topModule(
 				// call two CONVs
 				temp=rowCounter*61+(cycleCounter-4)*2+1;
 				if(~idOfCalMem) begin //idOfCalMem==0, we are going to use convResults0
-					convResults0[temp] = convResults0[temp]+convOut0; 		// doing CONV once
-					convResults0[temp+1] = convResults0[temp+1]+convOut1;	// doing CONV twice
+					tag=convOut0;
+					convResults0[temp] = convResults0[temp]+tag; 		// doing CONV once
+					tag=convOut1;
+					convResults0[temp+1] = convResults0[temp+1]+tag;	// doing CONV twice
 				end
 				else begin	//idOfCalMem==1, we are going to use convResults1
 					convResults1[temp] = convResults1[temp]+convOut0;		// doing CONV once
