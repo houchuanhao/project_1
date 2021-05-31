@@ -47,14 +47,15 @@ module tb_topModule();
 	
 	
 	// internal variables
-	reg [lenOfInput-1:0] kernel[numOfPerKnl*32*32-1:0];  	//store the value of a kernel, 32 kernels with 32 channels
-	reg [lenOfInput-1:0] fMap[numOfPerFMap*32-1:0];			//Only one fMap with multiple channels
+	reg signed [lenOfInput-1:0] kernel[0:numOfPerKnl*32*32-1];  	//store the value of a kernel, 32 kernels with 32 channels
+	reg signed [lenOfInput-1:0] fMap[0:numOfPerFMap*32-1];			//Only one fMap with multiple channels
 	
 	// initial all data and testbench variables
 	integer temp; //temporary variable
 	integer i_knl,j_chnl,k_value; //variables for kernel initialization
 	
 	initial begin	
+
 		//inital the value of kernel: one channel of one kernel has the same value, all kernels have the same channels
 		i_knl=0; //i_knl is the id of kernel
 		while(i_knl<numOfKernels) begin
@@ -80,7 +81,8 @@ module tb_topModule();
 			end
 			j_chnl=j_chnl+1;
 		end
-		
+		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
+		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
 		//inital the control signal
 		case(numOfChannels)
 			8: in_cfg_ci=0;
@@ -121,7 +123,6 @@ module tb_topModule();
 			
 			if(cycleCounter<2) begin	//read kernel
 				temp=kernelCounter*numOfChannels*numOfPerKnl+channelCounter*numOfPerKnl;
-				
 				in_data0=kernel[temp+cycleCounter*8+0];
 				in_data1=kernel[temp+cycleCounter*8+1];
 				in_data2=kernel[temp+cycleCounter*8+2];

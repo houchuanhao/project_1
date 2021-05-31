@@ -71,7 +71,7 @@ module topModule(
 	
 	// ======== 3. The part for setting register for every output variables.
 	// reg for out_data0, out_data1;
-	reg [lenOfOutput-1:0] reg_out_data0, reg_out_data1;
+	reg signed [lenOfOutput-1:0] reg_out_data0, reg_out_data1;
 	assign out_data0=reg_out_data0;
 	assign out_data1=reg_out_data1;
 	
@@ -86,20 +86,20 @@ module topModule(
 	
 	// ======== 4. The part for declaring our variables for calculation, such as kernel and data array.
     //kernel 4*4, store the value of a kernel, 4*4
-    reg [lenOfInput-1:0] kernel00, kernel01, kernel02, kernel03, 
+    reg signed [lenOfInput-1:0] kernel00, kernel01, kernel02, kernel03, 
 			kernel10, kernel11, kernel12, kernel13, 
 			kernel20, kernel21, kernel22, kernel23, 
 			kernel30, kernel31, kernel32, kernel33;
 	
 	//data 4*4, store the value of a data, 4*4
-	reg [lenOfInput-1:0] data00, data01, data02, data03, 
+	reg signed [lenOfInput-1:0] data00, data01, data02, data03, 
 			data10, data11, data12, data13, 
 			data20, data21, data22, data23, 
 			data30, data31, data32, data33;
 	
 	// ======== 5. The part for declaring our variables for CONV modules.
 	// the data should be shifting 2 bits.
-	reg [lenOfInput-1:0] tmpData0,tmpData1,tmpData2,tmpData3;
+	reg signed [lenOfInput-1:0] tmpData0,tmpData1,tmpData2,tmpData3;
 	//wire for recieving the data from CONVs
 	wire [lenOfOutput-1:0] convOut0,convOut1; //the output of conv0 and conv1.
 	
@@ -112,8 +112,8 @@ module topModule(
 
 	// ======== 6. The part for Memory variables for storing results.
 	// the memory for results.
-	reg [lenOfOutput-1:0] convResults0 [numOfPerOutFmp-1:0];
-	reg [lenOfOutput-1:0] convResults1 [numOfPerOutFmp-1:0];
+	reg signed [lenOfOutput-1:0] convResults0 [numOfPerOutFmp-1:0];
+	reg signed [lenOfOutput-1:0] convResults1 [numOfPerOutFmp-1:0];
 	reg idOfCalMem; //the id of Memory that is under calculation, to be 0 or 1
 	// initial the convResults
 	integer i_conv;

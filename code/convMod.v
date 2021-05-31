@@ -49,7 +49,7 @@ module convMod( data00, data01, data02, data03,
 	output [lenOfOutput-1:0] out_result;
 	
 	wire [lenOfOutput-1:0] tag00, tag01, tag10, tag11, tag20, tag21, tag30, tag31, row0, row1, row2, row3;
-	reg [lenOfOutput-1:0] result;
+	reg signed [lenOfOutput-1:0] result;
 	// Considering HDL not suggests deep logic, we use 2 level add operation as the simple logic and for speeding up.
 	assign tag00=data00*kernel00+data01*kernel01;
 	assign tag01=data02*kernel02+data03*kernel03;
