@@ -36,7 +36,7 @@ module tb_topModule();
 	// module variables
 	//input
 	reg clk=0;
-	reg [lenOfInput-1:0] in_data0, in_data1,  in_data2,  in_data3,  in_data4,  in_data5,  in_data6,  in_data7;
+	reg signed [lenOfInput-1:0] in_data0, in_data1,  in_data2,  in_data3,  in_data4,  in_data5,  in_data6,  in_data7;
 	reg in_start_conv=0;	//start signal of the top module
 	reg [2:0] in_cfg_ci;  //the number of channels,  		0 means 8, 1 means 16, 3 means 24, 3 means 32
     reg [2:0] in_cfg_co;      //the number of kernels,         0 means 8, 1 means 16, 3 means 24, 3 means 32
@@ -55,7 +55,6 @@ module tb_topModule();
 	integer i_knl,j_chnl,k_value; //variables for kernel initialization
 	
 	initial begin	
-
 		//inital the value of kernel: one channel of one kernel has the same value, all kernels have the same channels
 		i_knl=0; //i_knl is the id of kernel
 		while(i_knl<numOfKernels) begin
@@ -81,8 +80,7 @@ module tb_topModule();
 			end
 			j_chnl=j_chnl+1;
 		end
-		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
-		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
+		
 		//inital the control signal
 		case(numOfChannels)
 			8: in_cfg_ci=0;
@@ -103,6 +101,9 @@ module tb_topModule();
 		in_start_conv=1;	// inital work is done and the top module can start work!
 	end
 	
+	
+	$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
+	$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
 	//inital the clk: 500ps turns, T=1000ps
 	// debug, the cycle T=100ps.
 	initial begin	
@@ -123,6 +124,7 @@ module tb_topModule();
 			
 			if(cycleCounter<2) begin	//read kernel
 				temp=kernelCounter*numOfChannels*numOfPerKnl+channelCounter*numOfPerKnl;
+				
 				in_data0=kernel[temp+cycleCounter*8+0];
 				in_data1=kernel[temp+cycleCounter*8+1];
 				in_data2=kernel[temp+cycleCounter*8+2];
