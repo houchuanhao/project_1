@@ -81,6 +81,8 @@ module tb_topModule();
 			j_chnl=j_chnl+1;
 		end
 		
+		$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
+		$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
 		//inital the control signal
 		case(numOfChannels)
 			8: in_cfg_ci=0;
@@ -102,8 +104,7 @@ module tb_topModule();
 	end
 	
 	
-	$readmemb("D:/project_1/testbench/ifm_bin_c32xh64xw64.txt", fMap);
-	$readmemb("D:/project_1/testbench/weight_bin_co32xci32xk4xk4.txt", kernel);
+	
 	//inital the clk: 500ps turns, T=1000ps
 	// debug, the cycle T=100ps.
 	initial begin	

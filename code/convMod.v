@@ -36,20 +36,21 @@ module convMod( data00, data01, data02, data03,
 	parameter lenOfInput=8;    //the number of input-data bits 
     parameter lenOfOutput=25;  //the number of output-data bits
 	
-	input [lenOfInput-1:0] data00, data01, data02, data03, 
+	input signed [lenOfInput-1:0] data00, data01, data02, data03, 
 			data10, data11, data12, data13, 
 			data20, data21, data22, data23, 
 			data30, data31, data32, data33;
 			
-	input [lenOfInput-1:0] kernel00, kernel01, kernel02, kernel03, 
+	input signed [lenOfInput-1:0] kernel00, kernel01, kernel02, kernel03, 
 			kernel10, kernel11, kernel12, kernel13, 
 			kernel20, kernel21, kernel22, kernel23, 
 			kernel30, kernel31, kernel32, kernel33;
 	
 	output [lenOfOutput-1:0] out_result;
 	
-	wire [lenOfOutput-1:0] tag00, tag01, tag10, tag11, tag20, tag21, tag30, tag31, row0, row1, row2, row3;
+	wire signed [lenOfOutput-1:0] tag00, tag01, tag10, tag11, tag20, tag21, tag30, tag31, row0, row1, row2, row3;
 	reg signed [lenOfOutput-1:0] result;
+	reg signed [lenOfOutput-1:0] result_not_0;
 	// Considering HDL not suggests deep logic, we use 2 level add operation as the simple logic and for speeding up.
 	assign tag00=data00*kernel00+data01*kernel01;
 	assign tag01=data02*kernel02+data03*kernel03;
@@ -69,6 +70,7 @@ module convMod( data00, data01, data02, data03,
 	
 	always @(*)begin
 		result=row0+row1+row2+row3;
+		result_not_0=result;
 		if(result<0)begin
 			result=0;
 		end
