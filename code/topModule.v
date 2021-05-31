@@ -78,8 +78,6 @@ module topModule(
 	//set one reg to connect out_writeCtl and out_end_conv
 	reg reg_out_writeCtl=0;
 	assign out_writeCtl=reg_out_writeCtl;
-	reg reg_out_end_conv=0;	
-	assign out_end_conv=reg_out_end_conv;
 	
 	//set one reg to connect out_end_conv and reg_out_end_conv
 	reg reg_out_end_conv=0;
@@ -271,7 +269,9 @@ module topModule(
 	reg signalForOutput=0;
 	
 	always @( idOfCalMem ) begin
-		signalForOutput=1;
+		if( kernelCounter!=0 ) begin	//Let signalForOutput not be set in the initialization of the idOfCalMem. 
+			signalForOutput=1;
+		end
 	end
 	
 	//output the results

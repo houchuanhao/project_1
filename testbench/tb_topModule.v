@@ -101,9 +101,10 @@ module tb_topModule();
 		in_start_conv=1;	// inital work is done and the top module can start work!
 	end
 	
-	//inital the clk: 500ps turns, T=1000ns
+	//inital the clk: 500ps turns, T=1000ps
+	// debug, the cycle T=100ps.
 	initial begin	
-		forever #0.05 clk=~clk;
+		forever #0.005 clk=~clk;
 	end
 	
 	// begin to send data and count the cycle
