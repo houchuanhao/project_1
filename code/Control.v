@@ -33,13 +33,25 @@ output end_cov,
 input[8:0] cfg_ci, //通道数默认32
 input[1:0] cfg_co //kernel个数默认32
     );
-reg [16383:0] feature_row[0:63];
-reg [511:0] kernel_row[0:3];
+wire [16383:0] feature_row[0:63];
+wire [511:0] kernel_row[0:3];
 reg [24:0] result[0:244];
 reg [7:0] kernel[0:16*32*32-1];
 reg [7:0] fMap[0:64*64*32-1];
 genvar i,j,k;
-integer m;
+generate
+	for(j=0;j<64;j=j+1)begin
+			for (i=0;i<2048;i=i+1)  begin: gfmap1  //一行
+				assign  feature_row[999][i*8+7: i*8]=fMap[i];
+			end
+	end
+
+		for (i=0;i<128;i=i+1)  begin: gkernel1  //一行
+			assign  kernel_row[999][i*8+7: i*8]=kernel[i];
+		end
+endgenerate
+
+
 generate 
 	for(i=0;i<64;i=i+1)begin: ccc
 		if(i<4) begin
