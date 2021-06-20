@@ -104,9 +104,9 @@ module topModule(
 	wire [lenOfOutput-1:0] convOut0,convOut1; //the output of conv0 and conv1.
 	
 	// set two CONV modules. One for the first CONV, and two for consecutive CONVs
-	convMod conv0( tmpData0, data00, data01, data02, tmpData1, data10, data11, data12, tmpData2, data20, data21, data22, tmpData3, data30, data31, data32, kernel00, kernel01, kernel02, kernel03, kernel10, kernel11, kernel12, kernel13, kernel20, kernel21, kernel22, kernel23, kernel30, kernel31, kernel32, kernel33, 	convOut0 );
+	convMod conv0( tmpData0, data00, data01, data02, tmpData1, data10, data11, data12, tmpData2, data20, data21, data22, tmpData3, data30, data31, data32, kernel00, kernel01, kernel02, kernel03, kernel10, kernel11, kernel12, kernel13, kernel20, kernel21, kernel22, kernel23, kernel30, kernel31, kernel32, kernel33,clk, 	convOut0 );
 	
-	convMod conv1( data00, data01, data02, data03, data10, data11, data12, data13, data20, data21, data22, data23, data30, data31, data32, data33,	kernel00, kernel01, kernel02, kernel03, kernel10, kernel11, kernel12, kernel13, kernel20, kernel21, kernel22, kernel23, kernel30, kernel31, kernel32, kernel33, 	convOut1 );
+	convMod conv1( data00, data01, data02, data03, data10, data11, data12, data13, data20, data21, data22, data23, data30, data31, data32, data33,	kernel00, kernel01, kernel02, kernel03, kernel10, kernel11, kernel12, kernel13, kernel20, kernel21, kernel22, kernel23, kernel30, kernel31, kernel32, kernel33,clk, 	convOut1 );
 
 	
 
